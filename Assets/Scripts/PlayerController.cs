@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    // Physics Fields
+    // Movement Fields
     public float moveSpeed = 3;
     private Vector2 inputVector = new Vector2();
     private Rigidbody2D body;
