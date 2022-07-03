@@ -11,6 +11,9 @@ public class PlayerGunScript : MonoBehaviour
     [SerializeField] private int maxBullets = 6;
     [SerializeField] private float bulletSpeed = 15;
     [SerializeField] private float aimSpeed = 3f;
+    
+    [SerializeField] private AudioClip gunShotSFX;
+    [SerializeField] private AudioClip gunReloadSFX;
 
     [Header("Aim Rendering")]
     [SerializeField] private Projectile bulletPrefab;
@@ -23,6 +26,8 @@ public class PlayerGunScript : MonoBehaviour
     private float angle = 0;
     private float rotation = 0;
     private bool isSoulBullet = false;
+
+    private AudioSource audioSource;
 
     public void SetAimVisibility(bool visible)
     {
@@ -38,6 +43,10 @@ public class PlayerGunScript : MonoBehaviour
     private void Awake()
     {
         bullets = maxBullets;
+    }
+
+    private void Start() {
+        audioSource = GetComponent<AudioSource>();
     }
 
     private void Update()
@@ -68,7 +77,7 @@ public class PlayerGunScript : MonoBehaviour
         if (bullets > 0)
             ActivateAimGun(isSoulBullet);
         else
-            bullets = maxBullets;
+            ActivateGunReload();
     }
 
     private void ActivateAimGun(bool isSoulBullet)
@@ -78,11 +87,18 @@ public class PlayerGunScript : MonoBehaviour
         this.isSoulBullet = isSoulBullet;
     }
 
+    private void ActivateGunReload()
+    {
+        bullets = maxBullets;
+        audioSource.PlayOneShot(gunReloadSFX);
+    }
+
     private void TriggerShootGun()
     {
         Shoot(bulletSpeed);
         SetAimVisibility(false);
         bullets--;
+        audioSource.PlayOneShot(gunShotSFX);
     }
 
     private void Shoot(float speed)
