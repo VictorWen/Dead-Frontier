@@ -1,7 +1,3 @@
-using System.Security.AccessControl;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class VisionScript : MonoBehaviour
@@ -16,6 +12,10 @@ public class VisionScript : MonoBehaviour
     private Vector2[] uv;
     private int[] triangles;
 
+    // ===============
+    //  UNITY METHODS
+    // ===============
+
     private void Start() {
         mesh = new Mesh();
         meshFilter = GetComponent<MeshFilter>();
@@ -25,35 +25,44 @@ public class VisionScript : MonoBehaviour
         uv = new Vector2[vertices.Length];
         triangles = new int[numRays * 3];
 
-        vertices[numRays] = Vector3.zero;
+        AssignVerticesToTriangles();
 
-        // DrawView();
+        vertices[numRays] = Vector3.zero;
     }
 
     private void Update() {
         DrawView();
     }
 
+    // ================
+    //  HELPER METHODS
+    // ================
+
     private void DrawView() {
+        CalculateVisionVertices();
+        mesh.vertices = vertices;
+        mesh.uv = uv;
+        mesh.triangles = triangles;
+    }
+
+    private void CalculateVisionVertices() {
         for (int i = 0; i < numRays; i++) {
             float angle = 2 * Mathf.PI * i / numRays;
             Vector2 ray = new Vector3(Mathf.Cos(angle), Mathf.Sin(angle)) * range;
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, ray, range);
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, ray, range, LayerMask.GetMask(new string[] {"Walls"}));
             if (hit.collider != null) {
                 ray = hit.point - new Vector2(transform.position.x, transform.position.y);
             }
             vertices[i] = ray;
         }
+    }
 
+    private void AssignVerticesToTriangles() {
         for (int i = 0; i < numRays; i++) {
             int j = i * 3;
             triangles[j + 0] = numRays;
             triangles[j + 1] = (i+1) % numRays;
             triangles[j + 2] = i;
         }
-
-        mesh.vertices = vertices;
-        mesh.uv = uv;
-        mesh.triangles = triangles;
     }
 }
